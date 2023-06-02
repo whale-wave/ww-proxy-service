@@ -7,12 +7,15 @@ const proxyRouter = express.Router()
 proxyRouter.get('/add', (req, res) => {
   const { alias, host } = req.query as { alias: string; host: string }
 
-  proxyMapManage.add(alias, host)
+  if (!alias || !host) {
+    return res.json(new ErrorResponse({ msg: '缺少参数' }))
+  }
 
-  res.json({
-    alias,
-    host,
-  })
+  if (!proxyMapManage.add(alias, host)) {
+    return res.json(new ErrorResponse({ msg: '添加失败' }))
+  }
+
+  res.json(new SuccessResponse({ msg: '添加成功' }))
 })
 
 proxyRouter.get('/delete', (req, res) => {
