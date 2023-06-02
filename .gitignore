@@ -1,0 +1,11 @@
+node_modules
+
+.idea
+.vscode
+
+.database
+
+.DS_Store
+
+bin
+dist
