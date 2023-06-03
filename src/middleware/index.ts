@@ -19,7 +19,6 @@ export const proxyMid = (req: Request, res: Response, next: NextFunction) => {
       let bodyStr = ''
 
       req.on('data', chunk => {
-        console.log('proxy chuck')
         bodyStr += chunk.toString()
       })
 

@@ -26,5 +26,6 @@ initRoute(app)
 proxyMapManage.loadCacheData()
 
 app.listen(config.port, () => {
-  console.log(`Server running on port ${config.port}`)
+  logger.daily.mark('Program start')
+  logger.daily.info('Server running on port', config.port)
 })
