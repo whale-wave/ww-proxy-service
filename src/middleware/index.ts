@@ -10,6 +10,8 @@ export const proxyMid = (req: Request, res: Response, next: NextFunction) => {
     return res.json(new ErrorResponse({ msg: '无此代理' }))
   }
 
+  const { method, url, query, headers, ip } = req
+
   const proxy = createProxyMiddleware({
     target: host,
     pathRewrite: {
@@ -27,8 +29,16 @@ export const proxyMid = (req: Request, res: Response, next: NextFunction) => {
         try {
           body = JSON.parse(bodyStr)
         } catch (e) {}
-        const { method, url, query, headers, ip } = req
-        logger.daily.info(method, url, query, body, headers['user-agent'], headers.host, ip)
+        logger.daily.info('proxy to req', method, url, query, body, headers['user-agent'], headers.host, ip)
+      })
+    },
+    onProxyRes: (proxyRes)=>{
+      let body = ''
+      proxyRes.on('data', chunk => {
+        body += chunk.toString()
+      })
+      proxyRes.on('end', () => {
+        logger.daily.info('proxy to res', method, url, body, headers['user-agent'], headers.host, ip)
       })
     },
     changeOrigin: true,
