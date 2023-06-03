@@ -5,9 +5,13 @@ import { proxyMapManage, logger } from './utils'
 import './preInit'
 // @ts-ignore
 import { expressMid } from 'avan-logger'
+import cors from 'cors'
 
 const app = express()
 
+app.use(cors({
+  origin: '*',
+}))
 app.use(expressMid(logger as any))
 
 initRoute(app)
