@@ -29,16 +29,27 @@ export const proxyMid = (req: Request, res: Response, next: NextFunction) => {
         try {
           body = JSON.parse(bodyStr)
         } catch (e) {}
-        logger.daily.info('proxy to req', method, url, query, body, headers['user-agent'], headers.host, ip)
+        logger.daily.info(
+          'proxy to req',
+          alias,
+          host,
+          method,
+          url,
+          query,
+          body,
+          headers['user-agent'],
+          headers.host,
+          ip
+        )
       })
     },
-    onProxyRes: (proxyRes)=>{
+    onProxyRes: proxyRes => {
       let body = ''
       proxyRes.on('data', chunk => {
         body += chunk.toString()
       })
       proxyRes.on('end', () => {
-        logger.daily.info('proxy to res', method, url, body, headers['user-agent'], headers.host, ip)
+        logger.daily.info('proxy to res', alias, host, method, url, body, headers['user-agent'], headers.host, ip)
       })
     },
     changeOrigin: true,
