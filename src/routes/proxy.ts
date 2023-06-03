@@ -1,6 +1,5 @@
 import express from 'express'
-import { proxyMapManage, ErrorResponse, SuccessResponse, logger } from '../utils'
-import { createProxyMiddleware } from 'http-proxy-middleware'
+import { proxyMapManage, ErrorResponse, SuccessResponse } from '../utils'
 
 const proxyRouter = express.Router()
 
