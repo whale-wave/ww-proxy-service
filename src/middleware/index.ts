@@ -1,6 +1,8 @@
 import { createProxyMiddleware } from 'http-proxy-middleware'
 import { ErrorResponse, logger, proxyMapManage } from '../utils'
 import { NextFunction, Request, Response } from 'express'
+import zlib from 'zlib'
+import { IncomingMessage } from 'http'
 
 export const proxyMid = (req: Request, res: Response, next: NextFunction) => {
   const { alias } = req.params as { alias: string }
@@ -44,12 +46,34 @@ export const proxyMid = (req: Request, res: Response, next: NextFunction) => {
       })
     },
     onProxyRes: proxyRes => {
-      let body = ''
-      proxyRes.on('data', chunk => {
-        body += chunk.toString()
+      const rawData = [] as any[]
+      let gunzip: IncomingMessage | zlib.Gunzip
+
+      logger.debug.debug('proxyRes headers', proxyRes.headers)
+
+      const contentEncoding = proxyRes.headers['content-encoding']
+      if (contentEncoding && contentEncoding.includes('gzip')) {
+        gunzip = zlib.createGunzip()
+        proxyRes.pipe(gunzip)
+      } else {
+        gunzip = proxyRes
+      }
+
+      gunzip.on('data', chunk => {
+        rawData.push(chunk)
       })
-      proxyRes.on('end', () => {
+
+      gunzip.on('end', () => {
+        const resStr = Buffer.concat(rawData).toString()
+        let body = resStr
+        try {
+          body = JSON.stringify(JSON.parse(resStr), null, 2)
+        } catch (e) {}
         logger.daily.info('proxy to res', alias, host, method, url, body, headers['user-agent'], headers.host, ip)
+      })
+
+      gunzip.on('error', err => {
+        logger.error.error('proxy to res error', err)
       })
     },
     changeOrigin: true,
