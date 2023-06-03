@@ -1,3 +1,4 @@
+import { proxyMid } from './middleware'
 import express from 'express'
 import config from './config'
 import { initRoute } from './routes'
@@ -10,10 +11,14 @@ import bodyParser from 'body-parser'
 
 const app = express()
 
+app.use('/api/proxy/to/:alias', proxyMid)
+
 app.use(bodyParser.json())
-app.use(cors({
-  origin: '*',
-}))
+app.use(
+  cors({
+    origin: '*',
+  })
+)
 app.use(expressMid(logger as any))
 
 initRoute(app)

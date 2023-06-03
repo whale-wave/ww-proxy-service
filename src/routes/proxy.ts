@@ -77,23 +77,5 @@ proxyRouter.get('/get', (req, res) => {
   )
 })
 
-proxyRouter.use('/to/:alias', (req, res, next) => {
-  const { alias } = req.params as { alias: string }
-  const host = proxyMapManage.get(req.params.alias)
-
-  if (!host) {
-    return res.json(new ErrorResponse({ msg: '无此代理' }))
-  }
-
-  const proxy = createProxyMiddleware({
-    target: host,
-    pathRewrite: {
-      [`^/api/proxy/to/${alias}`]: '',
-    },
-    changeOrigin: true,
-  })
-
-  proxy(req, res, next)
-})
 
 export default proxyRouter
