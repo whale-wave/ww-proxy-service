@@ -33,10 +33,12 @@
     "typescript": "^5.1.3"
   },
   "dependencies": {
+    "@types/http-proxy": "^1.17.11",
     "avan-logger": "^0.0.3",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
     "express": "^4.18.2",
+    "http-proxy": "^1.18.1",
     "http-proxy-middleware": "^2.0.6",
     "prettier": "^2.8.8"
   },
