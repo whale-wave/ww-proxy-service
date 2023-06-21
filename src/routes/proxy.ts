@@ -1,18 +1,20 @@
 import express from 'express'
-import { proxyMapManage, ErrorResponse, SuccessResponse, logger } from '../utils'
-import { createProxyMiddleware } from 'http-proxy-middleware'
+import { proxyMapManage, ErrorResponse, SuccessResponse } from '../utils'
 
 const proxyRouter = express.Router()
 
 proxyRouter.get('/add', (req, res) => {
   const { alias, host } = req.query as { alias: string; host: string }
 
-  proxyMapManage.add(alias, host)
+  if (!alias || !host) {
+    return res.json(new ErrorResponse({ msg: '缺少参数' }))
+  }
 
-  res.json({
-    alias,
-    host,
-  })
+  if (!proxyMapManage.add(alias, host)) {
+    return res.json(new ErrorResponse({ msg: '添加失败' }))
+  }
+
+  res.json(new SuccessResponse({ msg: '添加成功' }))
 })
 
 proxyRouter.get('/delete', (req, res) => {
@@ -74,23 +76,5 @@ proxyRouter.get('/get', (req, res) => {
   )
 })
 
-proxyRouter.use('/to/:alias', (req, res, next) => {
-  const { alias } = req.params as { alias: string }
-  const host = proxyMapManage.get(req.params.alias)
-
-  if (!host) {
-    return res.json(new ErrorResponse({ msg: '无此代理' }))
-  }
-
-  const proxy = createProxyMiddleware({
-    target: host,
-    pathRewrite: {
-      [`^/api/proxy/to/${alias}`]: '',
-    },
-    changeOrigin: true,
-  })
-
-  proxy(req, res, next)
-})
 
 export default proxyRouter
