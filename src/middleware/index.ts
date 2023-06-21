@@ -3,6 +3,7 @@ import { ErrorResponse, logger, proxyMapManage } from '../utils'
 import { NextFunction, Request, Response } from 'express'
 import zlib from 'zlib'
 import { IncomingMessage } from 'http'
+import config from '../config'
 
 export const proxyMid = (req: Request, res: Response, next: NextFunction) => {
   const { alias } = req.params as { alias: string }
@@ -31,25 +32,29 @@ export const proxyMid = (req: Request, res: Response, next: NextFunction) => {
         try {
           body = JSON.parse(bodyStr)
         } catch (e) {}
-        logger.daily.info(
-          'proxy to req',
-          alias,
-          host,
-          method,
-          url,
-          query,
-          body,
-          headers['user-agent'],
-          headers.host,
-          ip
-        )
+        if (config.config.logSecret) {
+          logger.daily.info(
+            'proxy to req',
+            alias,
+            host,
+            method,
+            url,
+            query,
+            body,
+            headers['user-agent'],
+            headers.host,
+            ip
+          )
+        }
       })
     },
     onProxyRes: proxyRes => {
       const rawData = [] as any[]
       let gunzip: IncomingMessage | zlib.Gunzip
 
-      logger.debug.debug('proxyRes headers', proxyRes.headers)
+      if (config.config.logSecret) {
+        logger.debug.debug('proxyRes headers', proxyRes.headers)
+      }
 
       const contentEncoding = proxyRes.headers['content-encoding']
       if (contentEncoding && contentEncoding.includes('gzip')) {
@@ -69,7 +74,9 @@ export const proxyMid = (req: Request, res: Response, next: NextFunction) => {
         try {
           body = JSON.stringify(JSON.parse(resStr), null, 2)
         } catch (e) {}
-        logger.daily.info('proxy to res', alias, host, method, url, body, headers['user-agent'], headers.host, ip)
+        if (config.config.logSecret) {
+          logger.daily.info('proxy to res', alias, host, method, url, body, headers['user-agent'], headers.host, ip)
+        }
       })
 
       gunzip.on('error', err => {
