@@ -2,7 +2,7 @@ import { proxyMid } from './middleware'
 import express from 'express'
 import config from './config'
 import { initRoute } from './routes'
-import { proxyMapManage, logger } from './utils'
+import { proxyMapManage, forwardMapManage, logger } from './utils'
 import './preInit'
 // @ts-ignore
 import { expressMid } from 'avan-logger'
@@ -24,8 +24,10 @@ if (config.config.logSecret) {
   app.use(expressMid(logger as any))
 }
 
-initRoute(app)
 proxyMapManage.loadCacheData()
+forwardMapManage.loadCacheData()
+
+initRoute(app)
 
 app.listen(config.port, () => {
   if (config.config.logSecret) {
