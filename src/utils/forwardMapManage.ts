@@ -1,6 +1,10 @@
 import fs from 'fs'
 import { FORWARD_FILE_PATH } from '../preInit'
 
+type ForwardItem = { name: string; host: string }
+
+type ForwardResult = { [alias: string]: ForwardItem[] }
+
 class ForwardMapManage {
   private cacheMap = new Map<string, { name: string; host: string }[]>()
   private writeCacheData() {
@@ -17,13 +21,9 @@ class ForwardMapManage {
   }
 
   add({ alias, name, host }: { alias: string; name: string; host: string }): boolean {
-    let hostArr = this.cacheMap.get(alias)
+    let hostArr = this.cacheMap.get(alias) || []
 
-    if (!hostArr) {
-      hostArr = []
-    }
-
-    if (hostArr.find(item => item.name === name)) {
+    if (this.getByName(alias, name)) {
       return false
     }
 
@@ -35,7 +35,7 @@ class ForwardMapManage {
   }
 
   delete({ alias, name }: { alias: string; name?: string }): boolean {
-    const hostArr = this.cacheMap.get(alias)
+    const hostArr = this.getByAlias(alias)
     if (!hostArr) {
       return false
     }
@@ -56,7 +56,7 @@ class ForwardMapManage {
   }
 
   set({ alias, name, host }: { alias: string; name: string; host: string }): boolean {
-    const hostArr = this.cacheMap.get(alias)
+    const hostArr = this.getByAlias(alias)
     if (!hostArr) {
       return false
     }
@@ -73,8 +73,36 @@ class ForwardMapManage {
     return true
   }
 
-  get(alias: string): { name: string; host: string }[] | undefined {
+  get({ alias, name }: { alias?: string; name?: string } = {}):
+    | ForwardResult
+    | ForwardItem[]
+    | ForwardItem
+    | undefined {
+    if (alias) {
+      if (name) {
+        return this.getByName(alias, name)
+      }
+      return this.getByAlias(alias)
+    }
+
+    return this.getAll()
+  }
+
+  private getByAlias(alias: string) {
     return this.cacheMap.get(alias)
+  }
+
+  private getByName(alias: string, name: string) {
+    const hostArr = this.getByAlias(alias)
+    return hostArr?.find(item => item.name === name)
+  }
+
+  private getAll(): ForwardResult {
+    const result = Array.from(this.cacheMap).reduce((res, [alias, hostArr]) => {
+      res[alias] = hostArr
+      return res
+    }, {} as ForwardResult)
+    return result
   }
 }
 
