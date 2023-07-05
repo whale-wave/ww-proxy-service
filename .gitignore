@@ -10,3 +10,5 @@ node_modules
 bin
 dist
 terser
+
+ecosystem.config.js

@@ -3,7 +3,7 @@ import { Request, Response } from 'express'
 import httpProxy from 'http-proxy'
 import config from '../config'
 
-const proxy = httpProxy.createProxyServer({})
+const proxy = httpProxy.createProxyServer({ secure: false })
 
 export const forwardMid = (req: Request, res: Response) => {
   const { alias } = req.params as { alias: string }
