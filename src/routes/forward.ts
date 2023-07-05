@@ -1,13 +1,10 @@
 import express from 'express'
 import { forwardMapManage, ErrorResponse, SuccessResponse } from '../utils'
-import httpProxy from 'http-proxy'
-
-const proxy = httpProxy.createProxyServer({})
 
 export const forwardRouter = express.Router()
 
 forwardRouter.get('/add', (req, res) => {
-  const { alias, name, host } = req.query as { alias: string; host: string; name: string }
+  const { alias, name, host } = req.query as { alias?: string; host?: string; name?: string }
 
   if (!alias || !host || !name) {
     return res.json(new ErrorResponse({ msg: '缺少参数' }))
@@ -87,36 +84,4 @@ forwardRouter.get('/get', (req, res) => {
       },
     })
   )
-})
-
-forwardRouter.use('/to/:alias', (req, res) => {
-  const alias = req.params.alias
-  if (!alias) {
-    return res.json(new ErrorResponse({ msg: '缺少参数' }))
-  }
-
-  const hostArr = forwardMapManage.get({ alias })
-
-  if (!(hostArr instanceof Array)) {
-    return res.json(
-      new ErrorResponse({
-        msg: '无此代理',
-      })
-    )
-  }
-
-  console.log(hostArr, 'layouwen')
-
-  const requests = hostArr.map(({ host }) => {
-    return new Promise((resolve, reject) => {
-      proxy.web(req, res, { target: host }, err => {
-        reject(err)
-      })
-    })
-  })
-
-  Promise.all(requests).catch(err => {
-    console.error('Error forwarding request:', err)
-    res.status(500).send('Error forwarding request')
-  })
 })

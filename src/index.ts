@@ -1,4 +1,4 @@
-import { proxyMid } from './middleware'
+import { forwardMid, proxyMid } from './middleware'
 import express from 'express'
 import config from './config'
 import { initRoute } from './routes'
@@ -18,6 +18,7 @@ app.use(
 )
 
 app.use('/api/proxy/to/:alias', proxyMid)
+app.use('/api/forward/to/:alias', forwardMid)
 
 app.use(bodyParser.json())
 if (config.config.logSecret) {
