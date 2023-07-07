@@ -9,6 +9,4 @@ type LoggerInterface = {
   debug: log4js.Logger
 }
 
-const logger: LoggerInterface = new Logger(LOG_DIR_PATH)
-
-export default logger
+export const logger: LoggerInterface = new Logger(LOG_DIR_PATH)

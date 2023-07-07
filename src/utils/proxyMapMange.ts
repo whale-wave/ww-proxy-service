@@ -43,4 +43,4 @@ class ProxyMapManage {
   }
 }
 
-export default new ProxyMapManage()
+export const proxyMapManage = new ProxyMapManage()

@@ -1,4 +1,4 @@
-export { default as proxyMapManage } from './proxyMapMange'
-export { default as logger } from './logger'
+export * from './proxyMapMange'
+export * from './logger'
 export * from './response'
 export * from './forwardMapManage'
